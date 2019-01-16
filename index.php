@@ -33,11 +33,7 @@ $csv = readCSV($csvFile);
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Hello</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <title>Dataview</title>
     <style>
     body{
         font-family: sans-serif;
@@ -142,8 +138,12 @@ for($x=0;$x<count($csv);$x++){
         if($listitem[$y]==1 or $listitem[$y]==2){
             $start = $x;
             for($z=$x;$z<count($csv);$z++){
-                if($csv[$z][$y]==3 or $csv[$z][$y]==0){
-                    $end = $z;
+                if($csv[$z][$y]==3 or $csv[$z][$y]==0 or $z==count($csv)-1){
+                    if($z==count($csv)-1){
+                        $end = $z+1;
+                    } else{
+                        $end = $z;
+                    }
                     $zed = $z -1;
                     break;
                 }
@@ -152,7 +152,7 @@ for($x=0;$x<count($csv);$x++){
             $results[] = $item;
         }
     }
-    if($zed>$x) $x=$zed;
+    if($zed>$x) $x=$zed+1;
 }
 
 foreach ($results as $result){
