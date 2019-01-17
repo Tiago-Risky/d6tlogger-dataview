@@ -37,10 +37,10 @@ $csv = readCSV($csvFile);
     <style>
     body{
         font-family: sans-serif;
-        font-size: 9px;
     }
     .celval{
         float:left;
+        font-size: 9px;
         height:10px;
         width:10%;
         border-top:1px solid grey;
@@ -92,7 +92,8 @@ $csv = readCSV($csvFile);
     </style>
 </head>
 <body>
-
+<h1>Results</h1>
+<p>Active filters:</p>
 <?php
 
 foreach ($csv as $l){
@@ -129,7 +130,20 @@ foreach ($csv as $l){
 <table class="crucial"><thead><th>Start</th><th>End</th><th>Cell</th></thead>
 <?php
 
+$dataStart[0] = $csv[0][0];
+$dataStart[1] = $csv[0][1];
+$dataEnd[0] = $csv[count($csv)-1][0];
+$dataEnd[1] = $csv[count($csv)-1][1];
+#this is where we plug the filters based on the current page address using $_GET... TODO
+
+$critical = array();
 $results = array();
+
+foreach($csv as $csvItem){
+    if($csvItem[0]>=$dataStart[0] && $csvItem[1]>=$dataStart[1] && $csvItem[0]<=$dataEnd[0] && $csvItem[1]<=$dataEnd[1]){
+        $results[] = $csvItem;
+    }
+}
 
 function checkExist($array,$x,$cell){
     $result = false;
@@ -142,14 +156,14 @@ function checkExist($array,$x,$cell){
     return $result;
 }
 
-for($x=0;$x<count($csv);$x++){
-    $listitem = $csv[$x];
+for($x=0;$x<count($results);$x++){
+    $listitem = $results[$x];
     for($y=2;$y<10;$y++){
         if($listitem[$y]==1 or $listitem[$y]==2){
             $start = $x;
             for($z=$x;$z<count($csv);$z++){
-                if($csv[$z][$y]==3 or $csv[$z][$y]==0 or $z==count($csv)-1){
-                    if($z==count($csv)-1){
+                if($results[$z][$y]==3 or $results[$z][$y]==0 or $z==count($csv)-1){
+                    if($z==count($results)-1){
                         $end = $z+1;
                     } else{
                         $end = $z;
@@ -157,16 +171,16 @@ for($x=0;$x<count($csv);$x++){
                     break;
                 }
             }
-            if (checkExist($results,$start,$y-1)==false){
+            if (checkExist($critical,$start,$y-1)==false){
                 $item = array($start, $end, $y-1);
-                $results[] = $item;
+                $critical[] = $item;
             }
         }
     }
 }
 
-foreach ($results as $result){
-    print('<tr><td>'.$csv[$result[0]][0].', '.$csv[$result[0]][1].'</td><td>'.$csv[$result[1]-1][0].', '.$csv[$result[1]-1][1].'</td><td>'.$result[2].'</td></tr>');
+foreach ($critical as $result){
+    print('<tr><td>'.$results[$result[0]][0].', '.$results[$result[0]][1].'</td><td>'.$results[$result[1]-1][0].', '.$results[$result[1]-1][1].'</td><td>'.$result[2].'</td></tr>');
 }
 
 ?>
