@@ -130,7 +130,17 @@ foreach ($csv as $l){
 <?php
 
 $results = array();
-$zed = 0;
+
+function checkExist($array,$x,$cell){
+    $result = false;
+    foreach($array as $item){
+        if($x>=$item[0] && $x<=$item[1] && $item[2]==$cell){
+            $result = true;
+            break;
+        }
+    }
+    return $result;
+}
 
 for($x=0;$x<count($csv);$x++){
     $listitem = $csv[$x];
@@ -144,15 +154,15 @@ for($x=0;$x<count($csv);$x++){
                     } else{
                         $end = $z;
                     }
-                    $zed = $z -1;
                     break;
                 }
             }
-            $item = array($start, $end, $y-1);
-            $results[] = $item;
+            if (checkExist($results,$start,$y-1)==false){
+                $item = array($start, $end, $y-1);
+                $results[] = $item;
+            }
         }
     }
-    if($zed>$x) $x=$zed+1;
 }
 
 foreach ($results as $result){
