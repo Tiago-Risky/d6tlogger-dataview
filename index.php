@@ -1,4 +1,12 @@
 <?php
+
+$filter_data_start = isset($_GET['start']) ? $_GET['start'] : null;
+$filter_data_end = isset($_GET['end']) ? $_GET['end'] : null;
+
+function convertDate($date){
+    return $date;
+}
+
 function readCSV($csvFile){
     $file_handle = fopen($csvFile, 'r');
     while (!feof($file_handle) ) {
@@ -89,11 +97,91 @@ $csv = readCSV($csvFile);
     .crucial td{
         width: 30%;
     }
+
+    .filter-start{
+        float: left;
+        margin-right: 10px;
+        height: 30px;
+        line-height: 30px;
+        margin-bottom: 10px;
+    }
+    
+    .filter{
+        float: left;
+        border-radius: 25px;
+        border: 2px solid blue;
+        padding: 5px;
+        margin-bottom: 10px;
+        margin-left: 3px;
+    }
+
+    .ov-table{
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0px;
+        padding: 0px;
+    }
+    .ov-table-master{
+        width: 70%;
+        border-collapse: collapse;
+        font-size: 8px;
+        margin: 0px;
+        padding: 0px;
+    }
+    .ov-table-date{
+        width: 10%;
+        padding: 0px;
+        border-top: 1px solid black;
+    }
+    .ov-table-data{
+        width: 90%;
+        padding: 0px;
+        vertical-align: top;
+    }
+    .ov-cel{
+        width: 10%;
+        height: 2px;
+        padding: 0px;
+        margin: 0px;
+    }
     </style>
 </head>
 <body>
+<h1>Overview</h1>
+<?php
+print('<table class="ov-table-master">');
+for($x=0;$x<count($csv);$x++){
+    if($x==0 or (($x-1)%10==0 and $x>1 and $x<count($csv)-1)){
+        print('<tr>
+        <td class="ov-table-date">'.$csv[$x][0].' '.$csv[$x][1].'</td>
+        <td class="ov-table-data">
+        <table class="ov-table">');
+    }
+    print('<tr class="'.$x.'">');
+    for($y=0;$y<8;$y++){
+        print('<td class="ov-cel '.colourcode($csv[$x][$y+2]).'"></td>');
+    }
+    print('</tr>');
+    if($x==count($csv)-1 or (($x%10==0) && $x>0)){
+        print('</table>
+        </td>
+        </tr>');
+    }
+}
+print('</table>');
+?>
+
 <h1>Results</h1>
-<p>Active filters:</p>
+<div><div class="filter-start">Filters:</div>
+<?php
+if(isset($filter_data_start) and !is_null($filter_data_start)){
+    print('<div class="filter">'.convertDate($filter_data_start).'</div>');
+}
+if(isset($filter_data_end) and !is_null($filter_data_end)){
+    print('<div class="filter">'.convertDate($filter_data_end).'</div>');
+}
+?>
+</div>
 <?php
 
 foreach ($csv as $l){
