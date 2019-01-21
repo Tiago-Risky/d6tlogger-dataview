@@ -143,6 +143,7 @@ $csv = readCSV($csvFile);
         height: 2px;
         padding: 0px;
         margin: 0px;
+        text-align: center;
     }
     </style>
 </head>
@@ -150,6 +151,21 @@ $csv = readCSV($csvFile);
 <h1>Overview</h1>
 <?php
 print('<table class="ov-table-master">');
+print('<tr><td class="ov-table-date" style="border-top: 0px;"></td>
+        <td class="ov-table-data">
+        <table class="ov-table">
+        <tr><td class="ov-cel">1</td>
+        <td class="ov-cel">2</td>
+        <td class="ov-cel">3</td>
+        <td class="ov-cel">4</td>
+        <td class="ov-cel">5</td>
+        <td class="ov-cel">6</td>
+        <td class="ov-cel">7</td>
+        <td class="ov-cel">8</td>
+        </tr>
+        </table>
+        </td>
+</tr>');
 for($x=0;$x<count($csv);$x++){
     if($x==0 or (($x-1)%10==0 and $x>1 and $x<count($csv)-1)){
         print('<tr>
@@ -171,7 +187,7 @@ for($x=0;$x<count($csv);$x++){
 print('</table>');
 ?>
 
-<h1>Results</h1>
+<h1>Detailed</h1>
 <div><div class="filter-start">Filters:</div>
 <?php
 if(isset($filter_data_start) and !is_null($filter_data_start)){
