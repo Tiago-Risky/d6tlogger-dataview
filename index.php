@@ -3,8 +3,18 @@
 $filter_data_start = isset($_GET['start']) ? $_GET['start'] : null;
 $filter_data_end = isset($_GET['end']) ? $_GET['end'] : null;
 
+function parseDate($date){
+    #format taken: Year-Month-Day 24h:m:s
+    $converted = strtotime($date);
+    return $converted;
+}
+
 function convertDate($date){
-    return $date;
+    return strftime('%d-%m-%Y %H:%M:%S', $date);
+}
+
+function printLegend(){
+    print('<table class="legend clearfix"><tr><td><b>Legend</b></td><td class="'.colourcode(0).'">None</td><td class="'.colourcode(1).'">D6T</td><td class="'.colourcode(2).'">Cam</td><td class="'.colourcode(3).'">Both</td></tr></table>');
 }
 
 function readCSV($csvFile){
@@ -22,13 +32,13 @@ function colourcode($arg){
             return "empty";
             break;
         case 1:
-            return "blue";
+            return "orange";
             break;
         case 2:
-            return "green";
+            return "red";
             break;
         case 3:
-            return "red";
+            return "green";
             break;
     }
 }
@@ -45,6 +55,19 @@ $csv = readCSV($csvFile);
     <style>
     body{
         font-family: sans-serif;
+    }
+    .clearfix{
+        clear:both;
+    }
+    .legend{
+        margin-bottom: 5px;
+        border: 2px solid grey;
+        padding: 0px;
+        border-collapse: collapse;
+    }
+    .legend td{
+        padding: 5px;
+        border-left: 2px solid grey;
     }
     .celval{
         float:left;
@@ -67,6 +90,10 @@ $csv = readCSV($csvFile);
 
     .red{
         background-color:salmon;
+    }
+
+    .orange{
+        background-color:orange;
     }
 
     .green{
@@ -106,10 +133,19 @@ $csv = readCSV($csvFile);
         margin-bottom: 10px;
     }
     
-    .filter{
+    .filter-blue{
         float: left;
-        border-radius: 25px;
+        border-radius: 10px;
         border: 2px solid blue;
+        padding: 5px;
+        margin-bottom: 10px;
+        margin-left: 3px;
+    }
+
+    .filter-red{
+        float: left;
+        border-radius: 10px;
+        border: 2px solid red;
         padding: 5px;
         margin-bottom: 10px;
         margin-left: 3px;
@@ -132,6 +168,7 @@ $csv = readCSV($csvFile);
         width: 10%;
         padding: 0px;
         border-top: 1px solid black;
+        vertical-align: top;
     }
     .ov-table-data{
         width: 90%;
@@ -150,6 +187,7 @@ $csv = readCSV($csvFile);
 <body>
 <h1>Overview</h1>
 <?php
+printLegend();
 print('<table class="ov-table-master">');
 print('<tr><td class="ov-table-date" style="border-top: 0px;"></td>
         <td class="ov-table-data">
@@ -167,7 +205,7 @@ print('<tr><td class="ov-table-date" style="border-top: 0px;"></td>
         </td>
 </tr>');
 for($x=0;$x<count($csv);$x++){
-    if($x==0 or (($x-1)%10==0 and $x>1 and $x<count($csv)-1)){
+    if($x==0 or ($x%10==0 and $x>1 and $x<count($csv)-1)){
         print('<tr>
         <td class="ov-table-date">'.$csv[$x][0].' '.$csv[$x][1].'</td>
         <td class="ov-table-data">
@@ -178,7 +216,7 @@ for($x=0;$x<count($csv);$x++){
         print('<td class="ov-cel '.colourcode($csv[$x][$y+2]).'"></td>');
     }
     print('</tr>');
-    if($x==count($csv)-1 or (($x%10==0) && $x>0)){
+    if($x==count($csv)-1 or ((($x+1)%10==0) && $x>0)){
         print('</table>
         </td>
         </tr>');
@@ -188,17 +226,22 @@ print('</table>');
 ?>
 
 <h1>Detailed</h1>
-<div><div class="filter-start">Filters:</div>
+<div><div class="filter-start">Filters:</div>   
 <?php
+
 if(isset($filter_data_start) and !is_null($filter_data_start)){
-    print('<div class="filter">'.convertDate($filter_data_start).'</div>');
+    print('<div class="filter-blue"><b>Start:</b> '.convertDate(parseDate($filter_data_start)).'</div>');
 }
 if(isset($filter_data_end) and !is_null($filter_data_end)){
-    print('<div class="filter">'.convertDate($filter_data_end).'</div>');
+    print('<div class="filter-red"><b>End:</b> '.convertDate(parseDate($filter_data_end)).'</div>');
 }
 ?>
 </div>
 <?php
+printLegend();
+#plug the results here instead!!!!
+#do the filter check
+#do the date convertion
 
 foreach ($csv as $l){
     print('<div class="celrow">
