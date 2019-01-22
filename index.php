@@ -1,7 +1,15 @@
 <?php
+if (isset($_GET['start']) and !is_null($_GET['start']) and trim($_GET['start'])!=''){
+    $filter_data_start = $_GET['start'];
+} else {
+    $filter_data_start = null;
+}
 
-$filter_data_start = isset($_GET['start']) ? $_GET['start'] : null;
-$filter_data_end = isset($_GET['end']) ? $_GET['end'] : null;
+if (isset($_GET['end']) and !is_null($_GET['end']) and trim($_GET['end'])!=''){
+    $filter_data_end = $_GET['end'];
+} else {
+    $filter_data_end = null;
+}
 
 function parseDate($date){
     #format taken: Year-Month-Day 24h:m:s
@@ -14,7 +22,10 @@ function convertDate($date){
 }
 
 function printLegend(){
-    print('<table class="legend clearfix"><tr><td><b>Legend</b></td><td class="'.colourcode(0).'">None</td><td class="'.colourcode(1).'">D6T</td><td class="'.colourcode(2).'">Cam</td><td class="'.colourcode(3).'">Both</td></tr></table>');
+    print('<table class="legend clearfix"><tr><td><b>Legend</b></td><td class="'.colourcode(0).'">None</td>
+    <td class="'.colourcode(1).'">D6T</td>
+    <td class="'.colourcode(2).'">Cam</td>
+    <td class="'.colourcode(3).'">Both</td></tr></table>');
 }
 
 function readCSV($csvFile){
@@ -239,11 +250,32 @@ if(isset($filter_data_end) and !is_null($filter_data_end)){
 </div>
 <?php
 printLegend();
-#plug the results here instead!!!!
-#do the filter check
-#do the date convertion
 
-foreach ($csv as $l){
+$start_array = parseDate($csv[0][0].' '.$csv[0][1]);
+if(isset($filter_data_start) and !is_null($filter_data_start)){
+    $start_filter = parseDate($filter_data_start);
+} else{
+    $start_filter = $start_array;
+}
+
+$end_array = parseDate($csv[count($csv)-1][0].' '.$csv[count($csv)-1][1]);
+if(isset($filter_data_end) and !is_null($filter_data_end)){
+    $end_filter = parseDate($filter_data_end);
+} else {
+    $end_filter = $end_array;
+}
+
+$filtered_csv = array();
+
+foreach($csv as $val){
+    $valdate = parseDate($val[0].' '.$val[1]);
+    if($valdate >= $start_filter and $valdate <= $end_filter){
+        $filtered_csv[] = $val;
+    }
+}
+
+
+foreach ($filtered_csv as $l){
     print('<div class="celrow">
     <div class="celval">'.$l[1].'</div>
     <div class="celval '.colourcode($l[2]).'"></div>
@@ -277,20 +309,7 @@ foreach ($csv as $l){
 <table class="crucial"><thead><th>Start</th><th>End</th><th>Cell</th></thead>
 <?php
 
-$dataStart[0] = $csv[0][0];
-$dataStart[1] = $csv[0][1];
-$dataEnd[0] = $csv[count($csv)-1][0];
-$dataEnd[1] = $csv[count($csv)-1][1];
-#this is where we plug the filters based on the current page address using $_GET... TODO
-
 $critical = array();
-$results = array();
-
-foreach($csv as $csvItem){
-    if($csvItem[0]>=$dataStart[0] && $csvItem[1]>=$dataStart[1] && $csvItem[0]<=$dataEnd[0] && $csvItem[1]<=$dataEnd[1]){
-        $results[] = $csvItem;
-    }
-}
 
 function checkExist($array,$x,$cell){
     $result = false;
@@ -303,14 +322,14 @@ function checkExist($array,$x,$cell){
     return $result;
 }
 
-for($x=0;$x<count($results);$x++){
-    $listitem = $results[$x];
+for($x=0;$x<count($filtered_csv);$x++){
+    $listitem = $filtered_csv[$x];
     for($y=2;$y<10;$y++){
         if($listitem[$y]==1 or $listitem[$y]==2){
             $start = $x;
-            for($z=$x;$z<count($csv);$z++){
-                if($results[$z][$y]==3 or $results[$z][$y]==0 or $z==count($csv)-1){
-                    if($z==count($results)-1){
+            for($z=$x;$z<count($filtered_csv);$z++){
+                if($filtered_csv[$z][$y]==3 or $filtered_csv[$z][$y]==0 or $z==count($csv)-1){
+                    if($z==count($filtered_csv)-1){
                         $end = $z+1;
                     } else{
                         $end = $z;
@@ -327,7 +346,9 @@ for($x=0;$x<count($results);$x++){
 }
 
 foreach ($critical as $result){
-    print('<tr><td>'.$results[$result[0]][0].', '.$results[$result[0]][1].'</td><td>'.$results[$result[1]-1][0].', '.$results[$result[1]-1][1].'</td><td>'.$result[2].'</td></tr>');
+    print('<tr><td>'.$filtered_csv[$result[0]][0].', '.$filtered_csv[$result[0]][1].'</td>
+    <td>'.$filtered_csv[$result[1]-1][0].', '.$filtered_csv[$result[1]-1][1].'</td>
+    <td>'.$result[2].'</td></tr>');
 }
 
 ?>
