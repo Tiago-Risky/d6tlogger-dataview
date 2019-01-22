@@ -237,9 +237,20 @@ print('</table>');
 ?>
 
 <h1>Detailed</h1>
-<div><div class="filter-start">Filters:</div>   
+<div class="clearfix"><div class="filter-start">Filters:</div><div class="filter-start">
+<form method="get">
+Start: <input type="text" name="start" id="start" value="<?php if(isset($filter_data_start) and !is_null($filter_data_start)){
+    print(convertDate(parseDate($filter_data_start)));
+}?>"/>
+End: <input type="text" name="end" id="end" value="<?php if(isset($filter_data_end) and !is_null($filter_data_end)){
+    print(convertDate(parseDate($filter_data_end)));
+}?>"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<div class="clearfix"><div class="filter-start">Active filters:</div>   
 <?php
-
 if(isset($filter_data_start) and !is_null($filter_data_start)){
     print('<div class="filter-blue"><b>Start:</b> '.convertDate(parseDate($filter_data_start)).'</div>');
 }
