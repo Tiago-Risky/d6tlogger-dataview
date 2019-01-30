@@ -1,4 +1,19 @@
 <?php
+
+#the gate
+
+if(isset($_GET['datetime']) and isset($_GET['viewmode'])){
+    $datetimeAr = explode(' -- ',$_GET['datetime']);
+    $dateA = $datetimeAr[0];
+    $dateB = $datetimeAr[1];
+    if($_GET['viewmode'] == "Detail"){
+        print('<script type="text/javascript">location.href = \'./detail.php?start='.$dateA.'&end='.$dateB.'\';</script>');
+    }
+    if($_GET['viewmode'] == "Overview"){
+        print('<script type="text/javascript">location.href = \'./overview.php?start='.$dateA.'&end='.$dateB.'\';</script>');
+    }
+}
+
 if (isset($_GET['start']) and !is_null($_GET['start']) and trim($_GET['start'])!=''){
     $filter_data_start = $_GET['start'];
 } else {
@@ -146,6 +161,12 @@ $csvTemp = readCSV($csvFileTemp);
 <head>
     <meta charset="utf-8" />
     <title>Dataview</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="daterangepicker.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.1/moment.min.js"></script>
+    <script type="text/javascript" src="daterangepicker.js"></script>
+
     <style>
     body{
         font-family: sans-serif;
@@ -276,134 +297,81 @@ $csvTemp = readCSV($csvFileTemp);
         margin: 0px;
         text-align: center;
     }
+    .index-filterbox{
+        text-align:center;
+        margin: 0 auto;
+    }
+    h1{
+        margin-top: 15px;
+        text-align:center;
+    }
+    p{
+        text-align:center;
+    }
     </style>
 </head>
 <body>
-<h1>Overview</h1>
-<?php
-printLegend();
-print('<table class="ov-table-master">');
-print('<tr><td class="ov-table-date" style="border-top: 0px;"></td>
-        <td class="ov-table-data">
-        <table class="ov-table">
-        <tr><td class="ov-cel">1</td>
-        <td class="ov-cel">2</td>
-        <td class="ov-cel">3</td>
-        <td class="ov-cel">4</td>
-        <td class="ov-cel">5</td>
-        <td class="ov-cel">6</td>
-        <td class="ov-cel">7</td>
-        <td class="ov-cel">8</td>
-        </tr>
-        </table>
-        </td>
-</tr>');
-for($x=0;$x<count($csv);$x++){
-    if($x==0 or ($x%10==0 and $x>1 and $x<count($csv)-1)){
-        print('<tr>
-        <td class="ov-table-date">'.$csv[$x][0].' '.$csv[$x][1].'</td>
-        <td class="ov-table-data">
-        <table class="ov-table">');
-    }
-    print('<tr class="'.$x.'">');
-    for($y=0;$y<8;$y++){
-        #print('<td class="ov-cel '.colourcode($csv[$x][$y+2]).'"></td>');#here
-        print('<td class="ov-cel" style="background-color:'.heatmap_colour($csvTemp[$x][$y+2]).'">'.$csvTemp[$x][$y+2].'  / '.$csv[$x][$y+2].'</td>');
-    }
-    print('</tr>');
-    if($x==count($csv)-1 or ((($x+1)%10==0) && $x>0)){
-        print('</table>
-        </td>
-        </tr>');
-    }
-}
-print('</table>');
-?>
-
-<h1>Detailed</h1>
-<div class="clearfix"><div class="filter-start">Filters:</div><div class="filter-start">
+<h1>D6T-logger Dataview</h1>
+<p>Select the date range</p>
+<div class="index-filterbox">
 <form method="get">
-Start: <input type="text" name="start" id="start" value="<?php if(isset($filter_data_start) and !is_null($filter_data_start)){
-    print(convertDate(parseDate($filter_data_start)));
-}?>"/>
-End: <input type="text" name="end" id="end" value="<?php if(isset($filter_data_end) and !is_null($filter_data_end)){
-    print(convertDate(parseDate($filter_data_end)));
-}?>"/>
-<input type="submit" value="Go"/>
+<input type="text" id="demo" name="datetime" style="width:400px;" autocomplete="off"/>
+<script>
+$('#demo').daterangepicker({
+    "showWeekNumbers": true,
+    "timePicker": true,
+    "timePicker24Hour": true,
+    "timePickerSeconds": true,
+    "locale": {
+        "format": "DD-MM-YYYY HH:mm:ss",
+        "separator": " -- ",
+        "applyLabel": "Apply",
+        "cancelLabel": "Cancel",
+        "fromLabel": "From",
+        "toLabel": "To",
+        "customRangeLabel": "Custom",
+        "weekLabel": "W",
+        "daysOfWeek": [
+            "Su",
+            "Mo",
+            "Tu",
+            "We",
+            "Th",
+            "Fr",
+            "Sa"
+        ],
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "firstDay": 1
+    },
+    "startDate": "28-01-2019 12:00:00",
+    "endDate": "28-01-2019 16:00:00"
+}, function(start, end, label) {
+
+});
+</script>
+<input type="submit" name="viewmode" value="Overview"/>
+<input type="submit" name="viewmode" value="Detail"/>
 </form>
 </div>
-</div>
-<div class="clearfix"><div class="filter-start">Active filters:</div>   
-<?php
-if(isset($filter_data_start) and !is_null($filter_data_start)){
-    print('<div class="filter-blue"><b>Start:</b> '.convertDate(parseDate($filter_data_start)).'</div>');
-}
-if(isset($filter_data_end) and !is_null($filter_data_end)){
-    print('<div class="filter-red"><b>End:</b> '.convertDate(parseDate($filter_data_end)).'</div>');
-}
-?>
-</div>
-<?php
-printLegend();
 
-$start_array = parseDate($csv[0][0].' '.$csv[0][1]);
-if(isset($filter_data_start) and !is_null($filter_data_start)){
-    $start_filter = parseDate($filter_data_start);
-} else{
-    $start_filter = $start_array;
-}
-
-$end_array = parseDate($csv[count($csv)-1][0].' '.$csv[count($csv)-1][1]);
-if(isset($filter_data_end) and !is_null($filter_data_end)){
-    $end_filter = parseDate($filter_data_end);
-} else {
-    $end_filter = $end_array;
-}
-
-$filtered_csv = array();
-
-foreach($csv as $val){
-    $valdate = parseDate($val[0].' '.$val[1]);
-    if($valdate >= $start_filter and $valdate <= $end_filter){
-        $filtered_csv[] = $val;
-    }
-}
-
-
-foreach ($filtered_csv as $l){
-    print('<div class="celrow">
-    <div class="celval">'.$l[1].'</div>
-    <div class="celval '.colourcode($l[2]).'"></div>
-    <div class="celval '.colourcode($l[3]).'"></div>
-    <div class="celval '.colourcode($l[4]).'"></div>
-    <div class="celval '.colourcode($l[5]).'"></div>
-    <div class="celval '.colourcode($l[6]).'"></div>
-    <div class="celval '.colourcode($l[7]).'"></div>
-    <div class="celval '.colourcode($l[8]).'"></div>
-    <div class="celval '.colourcode($l[9]).' last"></div>
-</div>');
-}
-
-?>
-
-<div class="celrow">
-    <div class="celval first"></div>
-    <div class="celval">1</div>
-    <div class="celval">2</div>
-    <div class="celval">3</div>
-    <div class="celval">4</div>
-    <div class="celval">5</div>
-    <div class="celval">6</div>
-    <div class="celval">7</div>
-    <div class="celval lastw">8</div>
-</div>
-
-</br></br>
-
+<!--
 <h1>Crucial Points</h1>
-<table class="crucial"><thead><th>Start</th><th>End</th><th>Cell</th></thead>
+<table class="crucial"><thead><th>Start</th><th>End</th><th>Cell</th></thead>-->
 <?php
-
+/*
 $critical = array();
 
 function checkExist($array,$x,$cell){
@@ -444,7 +412,7 @@ foreach ($critical as $result){
     print('<tr><td>'.$filtered_csv[$result[0]][0].', '.$filtered_csv[$result[0]][1].'</td>
     <td>'.$filtered_csv[$result[1]-1][0].', '.$filtered_csv[$result[1]-1][1].'</td>
     <td>'.$result[2].'</td></tr>');
-}
+}*/
 
 ?>
 </table>
